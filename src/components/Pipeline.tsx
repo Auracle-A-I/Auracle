@@ -71,6 +71,16 @@ export function Pipeline({ data, onComplete }: PipelineProps) {
 
   useEffect(() => {
     if (currentStage >= STAGES.length) {
+      pendo.track("aura_processing_completed", {
+        zodiac_sign: data.zodiacSign,
+        zodiac_element: data.zodiacElement,
+        zodiac_modality: data.zodiacModality,
+        inner_hue_name: data.innerHueName,
+        inner_hue_hex: data.innerHueHex,
+        outer_hue_name: data.outerHueName,
+        outer_hue_hex: data.outerHueHex,
+        total_stages_completed: STAGES.length,
+      });
       setTimeout(onComplete, 1800);
       return;
     }
@@ -161,7 +171,18 @@ export function Pipeline({ data, onComplete }: PipelineProps) {
 
                   {/* Label */}
                   <button
-                    onClick={() => isComplete && setSelectedNode(idx)}
+                    onClick={() => {
+                      if (isComplete) {
+                        const nodeInfo = getNodeInfo(idx, data);
+                        pendo.track("pipeline_node_inspected", {
+                          node_index: idx,
+                          node_name: STAGES[idx],
+                          node_input: String(nodeInfo.input).substring(0, 64),
+                          node_output: String(nodeInfo.output).substring(0, 64),
+                        });
+                        setSelectedNode(idx);
+                      }
+                    }}
                     disabled={!isComplete}
                     className={`text-left transition-all duration-400 group ${
                       isComplete
