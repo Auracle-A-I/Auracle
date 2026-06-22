@@ -4,8 +4,8 @@ import "./index.css";
 
 pendo.initialize({
   visitor: {
-    id: ''
-  }
+    id: crypto.randomUUID(),
+  },
 });
 
 createRoot(document.getElementById("root")!).render(<App />);
